@@ -1,0 +1,39 @@
+name: Daily aynmaScraper Job
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs daily at midnight UTC
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v4
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"  # Specify your Python version
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install nbconvert jupyter  # Ensure Jupyter Notebook dependencies are installed
+
+      # Execute the Jupyter notebook
+      - name: Run aynmaScraper notebook
+        run: |
+          jupyter nbconvert --to notebook --execute aynmaScraper.ipynb --output executed_aynmaScraper.ipynb
+
+      # Optional: Upload executed notebook as artifact
+      - name: Upload executed notebook
+        uses: actions/upload-artifact@v3
+        with:
+          name: executed-aynmaScraper
+          path: executed_aynmaScraper.ipynb
